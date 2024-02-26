@@ -1,64 +1,121 @@
-from flask import Blueprint, request, jsonify
-from flask_restful import Api, Resource # used for REST API building
+""" database dependencies to support sqliteDB examples """
+from random import randrange
+from datetime import date
+import os, base64
+import json
 
-from model.review import Review
+from __init__ import app, db
+from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash, check_password_hash
 
-review_api = Blueprint('review_api', __name__,
-                   url_prefix='/api/reviews')
-# Model definition for book reviews
-# API docs https://flask-restful.readthedocs.io/en/latest/api.html
-api = Api(review_api)
+class BookReview(db.Model):
+    __tablename__ = 'book_reviews'  # table name is plural, class name is singular
 
-import json, jwt
-from flask import Blueprint, request, jsonify, current_app, Response
-from flask_restful import Api, Resource
-from datetime import datetime
-from auth_middleware import token_required
-from model.review import BookReview
+    # Define the User schema with "vars" from object
+    id = db.Column(db.Integer, primary_key=True)
+    _title = db.Column(db.String(255), unique=False, nullable=False)
+    _review = db.Column(db.String(255), unique=False, nullable=False)
+    _rating = db.Column(db.Integer, unique=False, nullable=False)
 
-review_api = Blueprint('review_api', __name__, url_prefix='/api/reviews')
-api = Api(review_api)
+    # constructor of a User object, initializes the instance variables within object (self)
+    def __init__(self, title, review, rating):
+        self._title = title    # variables with self prefix become part of the object, 
+        self._review = review
+        self._rating = rating
 
-class ReviewAPI:
-    class CRUD(Resource):
-        @token_required
-        def post(self, current_user):  # Create method for book review
-            body = request.get_json()
+    # a name getter method, extracts name from object
+    @property
+    def title(self):
+        return self._title
+    # a setter function, allows name to be updated after initial object creation
+    @title.setter
+    def title(self, title):
+        self._title = title
+    
+    # a getter method, extracts email from object
+    @property
+    def review(self):
+        return self._review
+    
+    # a setter function, allows name to be updated after initial object creation
+    @review.setter
+    def review(self, review):
+        self._review = review
 
-            # Validate title
-            title = body.get('title')
-            if title is None or len(title) < 2:
-                return {'message': 'Title is missing, or is less than 2 characters'}, 400
+     # a getter method, extracts email from object
+    @property
+    def rating(self):
+        return self._rating
+    
+    # a setter function, allows name to be updated after initial object creation
+    @rating.setter
+    def rating(self, rating):
+        self._rating = rating    
+    
+    # output content using str(object) in human readable form, uses getter
+    # output content using json dumps, this is ready for API response
+    def __str__(self):
+        return json.dumps(self.read())
 
-            # Validate review
-            review = body.get('review')
-            if review is None or len(review) < 10:
-                return {'message': 'Review is missing, or is less than 10 characters'}, 400
+    # CRUD create/add a new record to the table
+    # returns self or None on error
+    def create(self):
+        try:
+            # creates a person object from User(db.Model) class, passes initializers
+            db.session.add(self)  # add prepares to persist person object to Users table
+            db.session.commit()  # SqlAlchemy "unit of work pattern" requires a manual commit
+            return self
+        except IntegrityError:
+            db.session.remove()
+            return None
 
-            # Validate rating
-            rating = body.get('rating')
+    # CRUD read converts self to dictionary
+    # returns dictionary
+    def read(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "review": self.review,
+            "rating": self.rating
+        }
+
+    # CRUD update: updates user name, password, phone
+    # returns self
+    def update(self, title="", review="", rating=""):
+        """only updates values with length"""
+        if len(title) > 0:
+            self.title = title
+        if len(review) > 0:
+            self.review = review
+        if len(rating) > 0:
+            self.rating=rating
+        db.session.commit()
+        return self
+
+    # CRUD delete: remove self
+    # None
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+        return None
+
+# Builds working data for testing
+def initBookReviews():
+    with app.app_context():
+        """Create database and tables"""
+        db.create_all()
+        """Tester data for table"""
+        b1 = BookReview(title='The Great Gatsby', review='A classic piece', rating='5')
+        b2 = BookReview(title='Harry Potter', review='A good read', rating='4')
+        b3 = BookReview(title='Animal Farm', review='A classic piece', rating='5')
+        b4 = BookReview(title='F451', review='dystopian story.', rating='4')
+        BookReviews = [b1, b2, b3, b4]
+
+        """Builds sample user/note(s) data"""
+        for review in BookReviews:
             try:
-                rating = int(rating)
-                if rating < 1 or rating > 5:
-                    raise ValueError
-            except ValueError:
-                return {'message': 'Rating must be an integer between 1 and 5'}, 400
-
-            # Create book review object
-            book_review = BookReview(title=title, review=review, rating=rating)
-
-            # Attempt to add book review to database
-            try:
-                book_review.create()
-                return jsonify(book_review.read()), 201
-            except Exception as e:
-                return {'message': f'Error adding review: {str(e)}'}, 500
-
-        @token_required
-        def get(self, current_user):  # Read Method for all book reviews
-            reviews = BookReview.query.all()
-            json_ready = [review.read() for review in reviews]
-            return jsonify(json_ready)
-
-api.add_resource(ReviewAPI.CRUD, '/')
-
+                review.create()
+            except IntegrityError:
+                '''fails with bad or duplicate data'''
+                db.session.remove()
+                print(f"Records exist, duplicate title, or error: {review.title}")

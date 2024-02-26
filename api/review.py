@@ -1,14 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Api, Resource # used for REST API building
 
-from model.review import Review
-
-review_api = Blueprint('review_api', __name__,
-                   url_prefix='/api/reviews')
 # Model definition for book reviews
 # API docs https://flask-restful.readthedocs.io/en/latest/api.html
-api = Api(review_api)
-
 import json, jwt
 from flask import Blueprint, request, jsonify, current_app, Response
 from flask_restful import Api, Resource
@@ -16,7 +10,7 @@ from datetime import datetime
 from auth_middleware import token_required
 from model.review import BookReview
 
-review_api = Blueprint('review_api', __name__, url_prefix='/api/reviews')
+review_api = Blueprint('review_api', __name__, url_prefix='/api/book_reviews')
 api = Api(review_api)
 
 class ReviewAPI:
