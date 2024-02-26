@@ -52,7 +52,7 @@ def table():
 def before_request():
    # Check if the request came from a specific origin
    allowed_origin = request.headers.get('Origin')
-   if allowed_origin in ['http://localhost:8279', 'http://127.0.0.1:8279:8279', 'https://nighthawkcoders.github.io']:
+   if allowed_origin in ['http://localhost:8279', 'http://127.0.0.1:8279', 'https://nighthawkcoders.github.io','http://10.0.0.36:8279']:
       cors._origins = allowed_origin
 
 
@@ -74,4 +74,4 @@ app.cli.add_command(custom_cli)
 # this runs the application on the development server
 if __name__ == "__main__":
    # change name for testing
-   app.run(debug=True, host="0.0.0.0", port="8279")
+   app.run(debug=True, host="0.0.0.0", port="8086")

@@ -66,6 +66,7 @@ class BookReview(db.Model):
             db.session.commit()  # SqlAlchemy "unit of work pattern" requires a manual commit
             return self
         except IntegrityError:
+            print("error")
             db.session.remove()
             return None
 

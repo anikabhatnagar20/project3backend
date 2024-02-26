@@ -14,11 +14,10 @@ review_api = Blueprint('review_api', __name__, url_prefix='/api/book_reviews')
 api = Api(review_api)
 
 class ReviewAPI:
-    class CRUD(Resource):
-        @token_required
-        def post(self, current_user):  # Create method for book review
+    class _CRUD(Resource):
+        def post(self):  # Create method for book review
             body = request.get_json()
-
+            print("hi")
             # Validate title
             title = body.get('title')
             if title is None or len(title) < 2:
@@ -40,18 +39,16 @@ class ReviewAPI:
 
             # Create book review object
             book_review = BookReview(title=title, review=review, rating=rating)
-
+            
+            book_review.create()
             # Attempt to add book review to database
-            try:
-                book_review.create()
-                return jsonify(book_review.read()), 201
-            except Exception as e:
-                return {'message': f'Error adding review: {str(e)}'}, 500
-
-        @token_required
-        def get(self, current_user):  # Read Method for all book reviews
+    
+            return jsonify(book_review.read())
+            return {'message': f'Error adding review: {str()}'}, 500
+        @token_required()
+        def get(self, _):  # Read Method for all book reviews
             reviews = BookReview.query.all()
             json_ready = [review.read() for review in reviews]
             return jsonify(json_ready)
 
-api.add_resource(ReviewAPI.CRUD, '/')
+    api.add_resource(_CRUD, '/')
