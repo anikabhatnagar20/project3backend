@@ -52,7 +52,7 @@ def table():
 def before_request():
    # Check if the request came from a specific origin
    allowed_origin = request.headers.get('Origin')
-   if allowed_origin in ['http://localhost:8279', 'http://127.0.0.1:8279', 'https://nighthawkcoders.github.io','http://10.0.0.36:8279']:
+   if allowed_origin in ['http://localhost:8999', 'http://127.0.0.1:8999', 'https://nighthawkcoders.github.io','http://10.0.0.36:8999']:
       cors._origins = allowed_origin
 
 
