@@ -10,6 +10,24 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///favorites.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+<<<<<<< HEAD
+=======
+# setup APIs
+from api.covid import covid_api # Blueprint import api definition
+from api.joke import joke_api # Blueprint import api definition
+from api.user import user_api # Blueprint import api definition
+from api.player import player_api
+from api.review import review_api
+# database migrations
+from model.users import initUsers
+from model.players import initPlayers
+from model.reviews import initBookReviews
+
+# setup App pages
+from projects.projects import app_projects # Blueprint directory import projects definition
+
+# Initialize the SQLAlchemy object to work with the Flask app instance
+>>>>>>> cad0c54 (changes)
 db.init_app(app)
 CORS(app)  # Initialize CORS for the entire app
 

@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, current_app, Response
 from flask_restful import Api, Resource
 from datetime import datetime
 from auth_middleware import token_required
-from model.review import BookReview
+from model.reviews import BookReview
 
 review_api = Blueprint('review_api', __name__, url_prefix='/api/book_reviews')
 api = Api(review_api)
@@ -45,8 +45,7 @@ class ReviewAPI:
     
             return jsonify(book_review.read())
             return {'message': f'Error adding review: {str()}'}, 500
-        @token_required()
-        def get(self, _):  # Read Method for all book reviews
+        def get(self):  # Read Method for all book reviews
             reviews = BookReview.query.all()
             json_ready = [review.read() for review in reviews]
             return jsonify(json_ready)
