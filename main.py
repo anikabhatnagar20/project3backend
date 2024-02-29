@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask.cli import AppGroup
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS  # Import the CORS module
 from models import db, FavoriteRead  # Import the models
 from favorites import favorites_api
 
@@ -10,6 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///favorites.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+CORS(app)  # Initialize CORS for the entire app
 
 # Create the SQLite database tables
 with app.app_context():
@@ -34,9 +36,13 @@ def table():
 def before_request():
     allowed_origin = request.headers.get('Origin')
     if allowed_origin in ['http://localhost:8999', 'http://127.0.0.1:8999', 'https://nighthawkcoders.github.io', 'http://10.0.0.36:8999']:
-        cors._origins = allowed_origin
+        CORS(app, resources={r"/*": {"origins": allowed_origin}})
 
 custom_cli = AppGroup('custom', help='Custom commands')
+
+def initFavorites():
+    # Your initialization logic for favorites here
+    pass
 
 @custom_cli.command('generate_data')
 def generate_data():
