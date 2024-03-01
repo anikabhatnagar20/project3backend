@@ -35,7 +35,7 @@ def table():
 @app.before_request
 def before_request():
     allowed_origin = request.headers.get('Origin')
-    if allowed_origin in ['http://localhost:8999', 'http://127.0.0.1:8999', 'https://nighthawkcoders.github.io', 'http://10.0.0.36:8999']:
+    if allowed_origin in ['http://localhost:8279', 'http://127.0.0.1:8279', 'https://nighthawkcoders.github.io', 'http://10.0.0.36:8279']:
         CORS(app, resources={r"/*": {"origins": allowed_origin}})
 
 custom_cli = AppGroup('custom', help='Custom commands')
@@ -52,4 +52,4 @@ app.cli.add_command(custom_cli)
 
 # this runs the application on the development server
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port="8999")
+    app.run(debug=True, host="0.0.0.0", port="8086")
