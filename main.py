@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import db, FavoriteRead
-from favorites import favorites_api
+from models import db, User, FavoriteRead
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///favorites.db'
@@ -11,17 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 CORS(app)
 
-app.register_blueprint(favorites_api)
-
-# Placeholder for your models - replace with your actual models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255), nullable=False)
-    uid = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    dob = db.Column(db.String(10), nullable=False)
-
-# Placeholder for other models and necessary imports
+# Blueprint registration and other imports (if needed)
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -43,8 +32,8 @@ def signup():
         password = request.form['password']
         dob = request.form['dob']
 
-        # Placeholder logic to create a new user - replace with your actual logic
-        new_user = User(name=name, uid=uid, password=password, dob=dob)
+        new_user = User(name=name, uid=uid, dob=dob)
+        new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
 
@@ -57,4 +46,6 @@ def signup_success():
     return render_template('signup_success.html')
 
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True, host="0.0.0.0", port=8999)
